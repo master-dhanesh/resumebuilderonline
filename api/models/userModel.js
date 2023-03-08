@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const userModel = new mongoose.Schema(
     {
@@ -36,6 +37,7 @@ const userModel = new mongoose.Schema(
                 url: "https://images.unsplash.com/photo-1529641484336-ef35148bab06?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
             },
         },
+        otp: String,
     },
     { timestamps: true }
 );
@@ -50,6 +52,12 @@ userModel.pre("save", function () {
 
 userModel.methods.comparepassword = function (password) {
     return bcrypt.compareSync(password, this.password);
+};
+
+userModel.methods.getjwttoken = function () {
+    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_TOKEN_EXPIRE,
+    });
 };
 
 const User = mongoose.model("user", userModel);

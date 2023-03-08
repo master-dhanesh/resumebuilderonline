@@ -1,14 +1,24 @@
 const User = require("../models/userModel");
 const ErrorHandler = require("../utils/ErrorHandler");
 const { catchAsyncErrors } = require("../middleware/catchAsyncErrors");
+const { sendtoken } = require("../utils/sendtoken");
+const { sendmail } = require("../utils/sendmailotp");
 
 exports.homepage = (req, res, next) => {
-    res.json({ message: "Homepage" });
+    res.json({ message: "Homepage", id: req.id });
 };
+
+exports.getloggedinuser = catchAsyncErrors(async (req, res, next) => {
+    const user = await User.findById(req.id);
+    res.status(200).json({
+        success: true,
+        user,
+    });
+});
 
 exports.signupuser = catchAsyncErrors(async (req, res, next) => {
     const user = await new User(req.body).save();
-    res.status(201).json(user);
+    sendtoken(user, 201, res);
 });
 
 exports.signinuser = catchAsyncErrors(async (req, res, next) => {
@@ -20,9 +30,52 @@ exports.signinuser = catchAsyncErrors(async (req, res, next) => {
     const isMatch = user.comparepassword(req.body.password);
     if (!isMatch) return next(new ErrorHandler("Wrong Credientials", 500));
 
-    res.status(200).json(user);
+    sendtoken(user, 201, res);
 });
 
 exports.signoutuser = (req, res, next) => {
+    res.clearCookie("token");
     res.json({ message: "Successfully signout!" });
 };
+
+exports.sendmailotp = catchAsyncErrors(async (req, res, next) => {
+    const user = await User.findOne({ email: req.body.email }).exec();
+    if (!user) return next(new ErrorHandler("User not found", 404));
+    sendmail(user, res, next);
+});
+
+exports.forgetpassword = catchAsyncErrors(async (req, res, next) => {
+    const user = await User.findOne({ email: req.body.email })
+        .select("+password")
+        .exec();
+    if (!user) return next(new ErrorHandler("User not found", 404));
+
+    if (req.body.otp !== user.otp) {
+        return next(new ErrorHandler("Invalid OTP, try again", 500));
+    }
+
+    user.password = req.body.password;
+    user.otp = "";
+    await user.save();
+    res.status(200).json({
+        success: true,
+        message: "Password Changed Successfully",
+    });
+});
+
+exports.resetpassword = catchAsyncErrors(async (req, res, next) => {
+    const user = await User.findById(req.params.id).select("+password").exec();
+    const isMatch = user.comparepassword(req.body.oldpassword);
+    if (!isMatch) return next(new ErrorHandler("Wrong password", 500));
+    user.password = req.body.newpassword;
+    await user.save();
+    sendtoken(user, 201, res);
+});
+
+exports.updateuser = catchAsyncErrors(async (req, res, next) => {
+    await User.findByIdAndUpdate(req.params.id, req.body).exec();
+    res.status(200).json({
+        success: true,
+        message: "User updated successfully",
+    });
+});
