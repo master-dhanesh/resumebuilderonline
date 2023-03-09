@@ -11,6 +11,7 @@ const {
     forgetpassword,
     resetpassword,
     updateuser,
+    updateavatar,
 } = require("../controllers/indexControllers");
 const { isAuthenticatedUser } = require("../middleware/auth");
 
@@ -26,8 +27,8 @@ router.post("/signup", signupuser);
 // @route POST /signin
 router.post("/signin", signinuser);
 
-// @route get /signout
-router.get("/signout", signoutuser);
+// @route post /signout
+router.post("/signout", isAuthenticatedUser, signoutuser);
 
 // @route post /send-mail
 router.post("/send-mail", sendmailotp);
@@ -36,9 +37,12 @@ router.post("/send-mail", sendmailotp);
 router.post("/forget", forgetpassword);
 
 // @route post /reset/:id
-router.post("/reset/:id", resetpassword);
+router.post("/reset/:id", isAuthenticatedUser, resetpassword);
 
 // @route post /update/:id
-router.post("/update/:id", updateuser);
+router.post("/update/:id", isAuthenticatedUser, updateuser);
+
+// @route post /avatar/:id
+router.post("/avatar/:id", isAuthenticatedUser, updateavatar);
 
 module.exports = router;

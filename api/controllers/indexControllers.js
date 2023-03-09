@@ -1,8 +1,10 @@
 const User = require("../models/userModel");
+const path = require("path");
 const ErrorHandler = require("../utils/ErrorHandler");
 const { catchAsyncErrors } = require("../middleware/catchAsyncErrors");
 const { sendtoken } = require("../utils/sendtoken");
 const { sendmail } = require("../utils/sendmailotp");
+const imagekit = require("../utils/imagekit").intiImagekit();
 
 exports.homepage = (req, res, next) => {
     res.json({ message: "Homepage", id: req.id });
@@ -77,5 +79,26 @@ exports.updateuser = catchAsyncErrors(async (req, res, next) => {
     res.status(200).json({
         success: true,
         message: "User updated successfully",
+    });
+});
+
+exports.updateavatar = catchAsyncErrors(async (req, res, next) => {
+    const user = await User.findById(req.params.id).exec();
+    const file = req.files.avatar;
+    const modifiedname = `resumebuilder-${Date.now()}${path.extname(
+        file.name
+    )}`;
+    if (user.avatar.fileId !== "") {
+        await imagekit.deleteFile(user.avatar.fileId);
+    }
+    const { fileId, url } = await imagekit.upload({
+        file: file.data,
+        fileName: modifiedname,
+    });
+    user.avatar = { fileId, url };
+    await user.save();
+    res.status(200).json({
+        success: true,
+        message: "profile updated",
     });
 });
