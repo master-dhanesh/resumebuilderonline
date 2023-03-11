@@ -12,6 +12,8 @@ const {
     resetpassword,
     updateuser,
     updateavatar,
+    createresume,
+    readsingleresume,
 } = require("../controllers/indexControllers");
 const { isAuthenticatedUser } = require("../middleware/auth");
 
@@ -44,5 +46,13 @@ router.post("/update/:id", isAuthenticatedUser, updateuser);
 
 // @route post /avatar/:id
 router.post("/avatar/:id", isAuthenticatedUser, updateavatar);
+
+// ----------------------------------------------------------------
+
+// @route post /resume/create/:userid
+router.post("/resume/create/:id", isAuthenticatedUser, createresume);
+
+// @route post /resume/read/:resumeid
+router.post("/resume/read/:id", isAuthenticatedUser, readsingleresume);
 
 module.exports = router;
