@@ -5,6 +5,8 @@ const app = express();
 // database connection
 require("./models/database").databaseconnection();
 
+// cors config
+app.use(require("cors")());
 // logging
 const logger = require("morgan");
 app.use(logger("tiny"));
