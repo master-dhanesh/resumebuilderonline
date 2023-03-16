@@ -1,20 +1,41 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { async_loaduserAction } from "./store/Actions/userActions";
-import { toast } from "react-toastify";
+import Navigation from "./components/Navigation";
+import { Route, Routes } from "react-router-dom";
+import Homepage from "./components/Homepage";
+import Signup from "./components/Signup";
+import Signin from "./components/Signin";
+import Forget from "./components/Forget";
+import Profile from "./components/Profile";
+import ProtectedRoute from "./helpers/ProtectedRoute";
 const App = () => {
-    const { apperror } = useSelector((state) => state.userReducer);
-    console.log(apperror);
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(async_loaduserAction());
     }, []);
 
-    if (apperror.length > 0) {
-        apperror.forEach((err) => toast.error(err));
-    }
+    return (
+        <div>
+            <Navigation />
+            <hr />
+            <Routes>
+                <Route path="/" element={<Homepage />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/signin" element={<Signin />} />
+                <Route path="/forget" element={<Forget />} />
 
-    return <div>App</div>;
+                <Route
+                    path="/profile"
+                    element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    }
+                />
+            </Routes>
+        </div>
+    );
 };
 
 export default App;

@@ -6,7 +6,7 @@ const app = express();
 require("./models/database").databaseconnection();
 
 // cors config
-app.use(require("cors")());
+app.use(require("cors")({ origin: true, credentials: true }));
 // logging
 const logger = require("morgan");
 app.use(logger("tiny"));
