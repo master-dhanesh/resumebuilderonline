@@ -9,6 +9,7 @@ import Signin from "./components/Signin";
 import Forget from "./components/Forget";
 import Profile from "./components/Profile";
 import ProtectedRoute from "./helpers/ProtectedRoute";
+import Reset from "./components/Reset";
 const App = () => {
     const dispatch = useDispatch();
     useEffect(() => {
@@ -30,6 +31,14 @@ const App = () => {
                     element={
                         <ProtectedRoute>
                             <Profile />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/reset"
+                    element={
+                        <ProtectedRoute>
+                            <Reset />
                         </ProtectedRoute>
                     }
                 />

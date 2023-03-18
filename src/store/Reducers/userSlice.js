@@ -11,7 +11,7 @@ export const userSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        loading: (state, action) => {
+        _loading: (state, action) => {
             state.isLoading = true;
         },
         loaduser: (state, action) => {
@@ -33,6 +33,6 @@ export const userSlice = createSlice({
     },
 });
 
-export const { loaduser, _error, loading,removeuser} = userSlice.actions;
+export const { loaduser, _error, _loading, removeuser } = userSlice.actions;
 
 export default userSlice.reducer;

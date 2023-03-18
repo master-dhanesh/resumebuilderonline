@@ -1,9 +1,17 @@
-import React from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { async_signupuser } from "../store/Actions/userActions";
 
 const Signup = () => {
+    const navigate = useNavigate();
+    const { isAuthenticated } = useSelector((state) => state.userReducer);
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        isAuthenticated && navigate("/profile");
+    }, []);
+
     const signuphandler = async () => {
         const user = {
             name: "sheryians coding school",
@@ -17,6 +25,7 @@ const Signup = () => {
         };
         dispatch(async_signupuser(user));
     };
+
     return (
         <div>
             {/* form to signup user */}

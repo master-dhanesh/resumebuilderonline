@@ -1,7 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-const ProtectedRoute = () => {
-    return <div>ProtectedRoute</div>;
+const ProtectedRoute = (props) => {
+    const navigate = useNavigate();
+    const { isAuthenticated } = useSelector((state) => state.userReducer);
+    useEffect(() => {
+        !isAuthenticated && navigate("/signin");
+    }, []);
+
+    return isAuthenticated && props.children;
 };
 
 export default ProtectedRoute;
