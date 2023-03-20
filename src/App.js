@@ -10,6 +10,7 @@ import Forget from "./components/Forget";
 import Profile from "./components/Profile";
 import ProtectedRoute from "./helpers/ProtectedRoute";
 import Reset from "./components/Reset";
+import CreateResume from "./components/Resumes/CreateResume";
 const App = () => {
     const dispatch = useDispatch();
     useEffect(() => {
@@ -34,6 +35,16 @@ const App = () => {
                         </ProtectedRoute>
                     }
                 />
+
+                <Route
+                    path="/create-resume"
+                    element={
+                        <ProtectedRoute>
+                            <CreateResume />
+                        </ProtectedRoute>
+                    }
+                />
+
                 <Route
                     path="/reset"
                     element={

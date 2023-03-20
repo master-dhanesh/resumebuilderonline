@@ -18,6 +18,7 @@ const Navigation = () => {
             ) : (
                 <>
                     <Link to="/profile">Profile</Link> <br />
+                    <Link to="/create-resume">Create Resume</Link> <br />
                     <Link to="/reset">Reset</Link> <br />
                     <button onClick={() => dispatch(async_signoutuser())}>
                         Signout
