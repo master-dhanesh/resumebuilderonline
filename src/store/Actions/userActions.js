@@ -80,3 +80,23 @@ export const async_verifyotp = (data) => async (dispatch, getStore) => {
         dispatch(_error(error.response.data.message));
     }
 };
+
+export const async_submitresume = () => async (dispatch, getStore) => {
+    try {
+        const resume = {
+            education: JSON.parse(localStorage.getItem("education")) || [],
+            skill: JSON.parse(localStorage.getItem("skills")) || [],
+            project: JSON.parse(localStorage.getItem("project")) || [],
+            experience: JSON.parse(localStorage.getItem("experience")) || [],
+            interest: JSON.parse(localStorage.getItem("institute")) || [],
+        };
+
+        const id = getStore().userReducer.user._id;
+        const res = await axios.post("/resume/create/" + id, resume);
+        // code to empty localstorage
+        console.log(res.data);
+        dispatch(async_loaduserAction());
+    } catch (error) {
+        dispatch(_error(error.response.data.message));
+    }
+};

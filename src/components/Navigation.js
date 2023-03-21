@@ -14,11 +14,13 @@ const Navigation = () => {
                     <Link to="/">Home</Link> <br />
                     <Link to="/signin">Signin</Link> <br />
                     <Link to="/signup">Signup</Link> <br />
+                    <Link to="/support">Support</Link> <br />
                 </>
             ) : (
                 <>
                     <Link to="/profile">Profile</Link> <br />
                     <Link to="/create-resume">Create Resume</Link> <br />
+                    <Link to="/read-resume">Read Resume</Link> <br />
                     <Link to="/reset">Reset</Link> <br />
                     <button onClick={() => dispatch(async_signoutuser())}>
                         Signout

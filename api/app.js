@@ -1,12 +1,15 @@
 require("dotenv").config({ path: "./.env" });
 const express = require("express");
+const http = require("http");
 const app = express();
+const { Server } = require("socket.io");
 
 // database connection
 require("./models/database").databaseconnection();
 
 // cors config
-app.use(require("cors")({ origin: true, credentials: true }));
+const cors = require("cors");
+app.use(cors({ origin: true, credentials: true }));
 // logging
 const logger = require("morgan");
 app.use(logger("tiny"));
@@ -32,6 +35,44 @@ app.use(fileUpload());
 const indexRoute = require("./routes/indexRoutes");
 app.use("/", indexRoute);
 
+// ----------------socket
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: true,
+        methods: ["GET", "POST"],
+    },
+});
+let users = [],
+    connections = [];
+
+io.on("connection", (socket) => {
+    connections.push(socket);
+    console.log(`Connected: ${connections.length} sockets connected.`);
+
+    // New User
+    socket.on("new user", (data) => {
+        // cb(true);
+        socket.username = data;
+        users.push(socket.username);
+        io.emit("get users", users);
+    });
+
+    //   Send Message
+    socket.on("send message", (data) => {
+        io.emit("new message", { msg: data, user: socket.username });
+    });
+
+    //   Disconnected
+    socket.on("disconnect", (data) => {
+        users.splice(connections.indexOf(socket), 1);
+        io.emit("get users", users);
+        connections.splice(connections.indexOf(socket.username), 1);
+        console.log(`Disconnected: ${connections.length} sockets connected.`);
+    });
+});
+// -------------------------------- socket ends
+
 // error handler
 const ErrorHandler = require("./utils/ErrorHandler");
 const { createErrors } = require("./middleware/errors");
@@ -40,7 +81,7 @@ app.all("*", (req, res, next) => {
 });
 app.use(createErrors);
 
-app.listen(
+server.listen(
     process.env.PORT,
     console.log(`Server running on port ${process.env.PORT}`)
 );

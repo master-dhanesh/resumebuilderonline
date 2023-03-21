@@ -11,6 +11,8 @@ import Profile from "./components/Profile";
 import ProtectedRoute from "./helpers/ProtectedRoute";
 import Reset from "./components/Reset";
 import CreateResume from "./components/Resumes/CreateResume";
+import Chat from "./components/Chat";
+import ReadResume from "./components/Resumes/ReadResume";
 const App = () => {
     const dispatch = useDispatch();
     useEffect(() => {
@@ -26,6 +28,7 @@ const App = () => {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/signin" element={<Signin />} />
                 <Route path="/forget" element={<Forget />} />
+                <Route path="/support" element={<Chat />} />
 
                 <Route
                     path="/profile"
@@ -41,6 +44,15 @@ const App = () => {
                     element={
                         <ProtectedRoute>
                             <CreateResume />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/read-resume"
+                    element={
+                        <ProtectedRoute>
+                            <ReadResume />
                         </ProtectedRoute>
                     }
                 />

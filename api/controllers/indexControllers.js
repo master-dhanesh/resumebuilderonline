@@ -12,7 +12,7 @@ exports.homepage = (req, res, next) => {
 };
 
 exports.getloggedinuser = catchAsyncErrors(async (req, res, next) => {
-    const user = await User.findById(req.id);
+    const user = await User.findById(req.id).populate("resumes");
     res.status(200).json({
         success: true,
         user,
@@ -109,6 +109,8 @@ exports.createresume = catchAsyncErrors(async (req, res, next) => {
     const newresume = new Resume(req.body);
     user.resumes.push(newresume._id);
     newresume.personalinfo = user._id;
+    await newresume.save();
+    await user.save();
     res.status(201).json({ success: true, message: "New resume created" });
 });
 
