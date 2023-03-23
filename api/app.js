@@ -35,44 +35,6 @@ app.use(fileUpload());
 const indexRoute = require("./routes/indexRoutes");
 app.use("/", indexRoute);
 
-// ----------------socket
-const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: true,
-        methods: ["GET", "POST"],
-    },
-});
-let users = [],
-    connections = [];
-
-io.on("connection", (socket) => {
-    connections.push(socket);
-    console.log(`Connected: ${connections.length} sockets connected.`);
-
-    // New User
-    socket.on("new user", (data) => {
-        // cb(true);
-        socket.username = data;
-        users.push(socket.username);
-        io.emit("get users", users);
-    });
-
-    //   Send Message
-    socket.on("send message", (data) => {
-        io.emit("new message", { msg: data, user: socket.username });
-    });
-
-    //   Disconnected
-    socket.on("disconnect", (data) => {
-        users.splice(connections.indexOf(socket), 1);
-        io.emit("get users", users);
-        connections.splice(connections.indexOf(socket.username), 1);
-        console.log(`Disconnected: ${connections.length} sockets connected.`);
-    });
-});
-// -------------------------------- socket ends
-
 // error handler
 const ErrorHandler = require("./utils/ErrorHandler");
 const { createErrors } = require("./middleware/errors");
@@ -80,6 +42,49 @@ app.all("*", (req, res, next) => {
     next(new ErrorHandler(`Request URL ${req.path} not found`, 404));
 });
 app.use(createErrors);
+
+// --------------------------------socket
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: true,
+        methods: ["GET", "POST"],
+    },
+});
+let users = [];
+let connections = [];
+let messages = [];
+io.on("connection", (socket) => {
+    connections.push(socket);
+    console.log(`Connected: ${connections.length} sockets connected`);
+
+    // New User
+    socket.on("new user", (data) => {
+        socket.username = data;
+        users.push(socket.username);
+        io.emit("get users", users);
+    });
+
+    // Send Message
+    socket.on("send message", (data) => {
+        // code to save messages in db
+        messages.push({ msg: data, user: socket.username });
+        io.emit("new message", messages);
+    });
+
+    // disconnect
+    socket.on("disconnect", (data) => {
+        users.splice(connections.indexOf(socket), 1);
+        io.emit("get users", users);
+        connections.splice(connections.indexOf(socket.username), 1);
+        console.log(`Disconnected: ${connections.length} sockets connected`);
+        if (users.length === 0 && connections.length === 0) {
+            messages = [];
+        }
+    });
+});
+
+// ----------------------------------------socket
 
 server.listen(
     process.env.PORT,

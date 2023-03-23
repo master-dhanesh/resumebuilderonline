@@ -3,70 +3,80 @@ import io from "socket.io-client";
 const socket = io.connect("http://localhost:3030/");
 
 const Chat = () => {
-    //Room State
-    const [room, setRoom] = useState("");
-    const [showUser, setShowUser] = useState(true);
     const [online, setOnline] = useState([]);
-
-    // Messages States
+    const [user, setUser] = useState("");
+    const [showBox, setShowBox] = useState(true);
     const [message, setMessage] = useState("");
-    const [messageReceived, setMessageReceived] = useState([]);
-
-    const joinRoom = () => {
-        if (room !== "") {
-            setShowUser(false);
-            socket.emit("new user", room);
-        }
-    };
-
-    const sendMessage = () => {
-        socket.emit("send message", message);
-        socket.on("new message", (data) => {
-            setMessageReceived([...messageReceived, data]);
-        });
-    };
-
+    const [recievedMessage, setRecievedMessage] = useState([]);
     useEffect(() => {
-        socket.on("get users", function (data) {
+        socket.on("get users", (data) => {
             setOnline(data);
         });
+        socket.on("new message", (data) => {
+            setRecievedMessage(data);
+        });
     }, []);
+
+    const UserHandler = (e) => {
+        e.preventDefault();
+        socket.emit("new user", user);
+        setShowBox(false);
+    };
+
+    const MessageHandler = (e) => {
+        e.preventDefault();
+        socket.emit("send message", message);
+        socket.on("new message", (data) => {
+            setRecievedMessage(data);
+        });
+    };
+
     return (
-        <div className="App">
-            <div className="alert alert-success w-25">
-                <ul>
-                    {online.length > 0
-                        ? online.map((user, i) => <li key={i}>{user}</li>)
-                        : ""}
-                </ul>
-            </div>
+        <div className="container mt-5 bg-light p-5">
+            {showBox ? (
+                <form onSubmit={UserHandler}>
+                    <h1 className="f-1 fw-light mb-5">Add User</h1>
 
-            {showUser && (
-                <>
                     <input
-                        placeholder="User Name"
-                        onChange={(event) => {
-                            setRoom(event.target.value);
-                        }}
+                        type="text"
+                        placeholder="Username"
+                        onChange={(e) => setUser(e.target.value)}
+                        value={user}
                     />
-                    <button onClick={joinRoom}>Join Chat</button>
-                </>
-            )}
+                    <button>Go Online</button>
+                </form>
+            ) : (
+                <div>
+                    <ul className="alert alert-success w-25 ">
+                        {online.map((u, i) => (
+                            <li className="ps-3" key={i}>
+                                {u}
+                            </li>
+                        ))}
+                    </ul>
+                    <hr />
+                    <form onSubmit={MessageHandler}>
+                        <h1 className="f-1 fw-light mb-5">Chats</h1>
 
-            <input
-                placeholder="Message..."
-                onChange={(event) => {
-                    setMessage(event.target.value);
-                }}
-            />
-            <button onClick={sendMessage}> Send Message</button>
-            <h1> Message:</h1>
-            {messageReceived.map((m, i) => (
-                <p key={i}>
-                    <strong>{m.user}:</strong>
-                    {m.msg}
-                </p>
-            ))}
+                        <input
+                            type="text"
+                            placeholder="Enter Message"
+                            onChange={(e) => setMessage(e.target.value)}
+                            value={message}
+                        />
+                        <button>Send Message</button>
+                    </form>
+                    <hr />
+                    <div>
+                        {recievedMessage.map((m, i) => (
+                            <p key={i}>
+                                <strong>{m.user}:</strong>
+                                <span>{m.msg}</span>
+                            </p>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
