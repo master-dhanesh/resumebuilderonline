@@ -44,45 +44,45 @@ app.all("*", (req, res, next) => {
 app.use(createErrors);
 
 // --------------------------------socket
-const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: true,
-        methods: ["GET", "POST"],
-    },
-});
-let users = [];
-let connections = [];
-let messages = [];
-io.on("connection", (socket) => {
-    connections.push(socket);
-    console.log(`Connected: ${connections.length} sockets connected`);
+// const server = http.createServer(app);
+// const io = new Server(server, {
+//     cors: {
+//         origin: true,
+//         methods: ["GET", "POST"],
+//     },
+// });
+// let users = [];
+// let connections = [];
+// let messages = [];
+// io.on("connection", (socket) => {
+//     connections.push(socket);
+//     console.log(`Connected: ${connections.length} sockets connected`);
 
-    // New User
-    socket.on("new user", (data) => {
-        socket.username = data;
-        users.push(socket.username);
-        io.emit("get users", users);
-    });
+//     // New User
+//     socket.on("new user", (data) => {
+//         socket.username = data;
+//         users.push(socket.username);
+//         io.emit("get users", users);
+//     });
 
-    // Send Message
-    socket.on("send message", (data) => {
-        // code to save messages in db
-        messages.push({ msg: data, user: socket.username });
-        io.emit("new message", messages);
-    });
+//     // Send Message
+//     socket.on("send message", (data) => {
+//         // code to save messages in db
+//         messages.push({ msg: data, user: socket.username });
+//         io.emit("new message", messages);
+//     });
 
-    // disconnect
-    socket.on("disconnect", (data) => {
-        users.splice(connections.indexOf(socket), 1);
-        io.emit("get users", users);
-        connections.splice(connections.indexOf(socket.username), 1);
-        console.log(`Disconnected: ${connections.length} sockets connected`);
-        if (users.length === 0 && connections.length === 0) {
-            messages = [];
-        }
-    });
-});
+//     // disconnect
+//     socket.on("disconnect", (data) => {
+//         users.splice(connections.indexOf(socket), 1);
+//         io.emit("get users", users);
+//         connections.splice(connections.indexOf(socket.username), 1);
+//         console.log(`Disconnected: ${connections.length} sockets connected`);
+//         if (users.length === 0 && connections.length === 0) {
+//             messages = [];
+//         }
+//     });
+// });
 
 // ----------------------------------------socket
 
